@@ -11,6 +11,7 @@ public enum RequestBuilderError: LocalizedError, Sendable  {
     case componentsCreationFailed(URL)
     case finalURLCreationFailed(URLComponents)
     case bodyEncodingFailed(AnySendableError)
+    case tokenProviderMissingOrTokenNil
     
     public var errorDescription: String? {
         switch self {
@@ -22,6 +23,8 @@ public enum RequestBuilderError: LocalizedError, Sendable  {
             return "Failed to construct the final URL from URLComponents. Components: \(components)."
         case .bodyEncodingFailed(let error):
             return "Failed to encode the request body. Underlying error: \(error.localizedDescription)"
+        case .tokenProviderMissingOrTokenNil:
+            return "The request requires authorization, but the TokenProvider was not provided or it returned a nil token."
         }
     }
 }

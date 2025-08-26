@@ -51,10 +51,13 @@ public final class RequestBuilder: RequestBuilderProtocol {
         
         var allHeaders = apiRequest.headers ?? [:]
         
-        if apiRequest is (any AuthorizableRequestProtocol),
-           let provider = tokenProvider,
-           let token = provider.getAccessToken()
-        {
+        switch apiRequest.authType {
+        case .none:
+            break
+        case .bearerToken:
+            guard let tokenProvider, let token = tokenProvider.getAccessToken() else {
+                throw RequestBuilderError.tokenProviderMissingOrTokenNil
+            }
             allHeaders[.auth] = "\(String.bearer) \(token)"
         }
         

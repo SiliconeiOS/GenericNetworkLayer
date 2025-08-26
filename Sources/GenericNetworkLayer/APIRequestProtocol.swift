@@ -15,6 +15,7 @@ public protocol APIRequestProtocol: Sendable {
     var headers: [String: String]? { get }
     var body: Data? { get throws }
     var retryPolicy: RetryPolicy? { get }
+    var authType: AuthorizationType { get }
 }
 
 public enum HTTPMethod: String {
@@ -30,6 +31,7 @@ public extension APIRequestProtocol {
     var method: HTTPMethod { .GET }
     var headers: [String: String]? { nil }
     var retryPolicy: RetryPolicy? { nil }
+    var authType: AuthorizationType { .none }
 }
 
 public extension APIRequestProtocol where Self: Encodable {
