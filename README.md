@@ -3,7 +3,7 @@
 A lightweight, modern, and flexible networking layer for Swift built on top of URLSession. GenericNetworkLayer provides type-safe API request execution with built-in retry logic, authentication, and comprehensive error handling.
 
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
-[![Platforms](https://img.shields.io/badge/Platforms-iOS%2014.0%2B%20%7C%20macOS%2012.0%2B-blue.svg)](https://swift.org)
+[![Platforms](https://img.shields.io/badge/Platforms-iOS%2015.0%2B%20%7C%20macOS%2012.0%2B-blue.svg)](https://swift.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![SPM](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg)](https://github.com/apple/swift-package-manager)
 
