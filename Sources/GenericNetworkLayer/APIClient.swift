@@ -39,15 +39,17 @@ public final class APIClient: APIClientProtocol {
         self.tokenProvider = tokenProvider
         self.defaultRetryPolicy = defaultRetryPolicy
     }
-    
+
     public convenience init(
         baseURL: String,
         session: URLSession,
         decoder: JSONDecoder = JSONDecoder(),
         tokenProvider: TokenProviderProtocol? = nil,
-        logger: NetworkLoggerProtocol? = nil,
+        enableLogging: Bool = false, // <-- Используем только этот параметр
         defaultRetryPolicy: RetryPolicy? = nil
     ) {
+        let logger: NetworkLoggerProtocol? = enableLogging ? DefaultNetworkLogger() : nil
+        
         let baseNetworkClient = NetworkClient(session: session, logger: logger)
         let retryingNetworkClient = RetryingNetworkClient(client: baseNetworkClient)
         
@@ -59,25 +61,6 @@ public final class APIClient: APIClientProtocol {
             requestBuilder: requestBuilder,
             responseParser: responseParser,
             tokenProvider: tokenProvider,
-            defaultRetryPolicy: defaultRetryPolicy
-        )
-    }
-    
-    public convenience init(
-        baseURL: String,
-        session: URLSession,
-        decoder: JSONDecoder = JSONDecoder(),
-        tokenProvider: TokenProviderProtocol? = nil,
-        enableLogging: Bool = false,
-        defaultRetryPolicy: RetryPolicy? = nil
-    ) {
-        let logger: NetworkLoggerProtocol? = enableLogging ? DefaultNetworkLogger() : nil
-        self.init(
-            baseURL: baseURL,
-            session: session,
-            decoder: decoder,
-            tokenProvider: tokenProvider,
-            logger: logger,
             defaultRetryPolicy: defaultRetryPolicy
         )
     }
