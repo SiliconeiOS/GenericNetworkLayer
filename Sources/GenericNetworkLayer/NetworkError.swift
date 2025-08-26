@@ -6,12 +6,28 @@
 
 import Foundation
 
+/// Network-level errors that can occur during HTTP requests.
+///
+/// These errors represent various failure modes at the network layer,
+/// including connectivity issues, invalid responses, and HTTP status code errors.
 public enum NetworkError: LocalizedError, Sendable {
-    case invalidURL, invalidResponse
+    /// The provided URL string is malformed or invalid
+    case invalidURL
+    
+    /// The server response is not a valid HTTP response
+    case invalidResponse
+    
+    /// HTTP 401 Unauthorized response
     case unauthorized(Data?)
+    
+    /// The underlying network request failed (connectivity, timeout, etc.)
     case requestFailed(AnySendableError)
+    
+    /// HTTP response with unexpected status code
     case unexpectedStatusCode(statusCode: Int, body: Data?)
-    indirect case  allRetriesFailed(lastError: NetworkError, totalAttempts: Int)
+    
+    /// All retry attempts have been exhausted
+    indirect case allRetriesFailed(lastError: NetworkError, totalAttempts: Int)
     
     public var errorDescription: String? {
         switch self {

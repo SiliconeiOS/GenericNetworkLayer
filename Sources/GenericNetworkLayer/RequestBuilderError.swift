@@ -6,10 +6,21 @@
 
 import Foundation
 
+/// Errors that can occur during URLRequest construction.
+///
+/// These errors represent failures in building a valid URLRequest
+/// from an API request object.
 public enum RequestBuilderError: LocalizedError, Sendable  {
+    /// The provided base URL string is malformed
     case invalidBaseURL(String)
+    
+    /// Failed to create URLComponents from the constructed URL
     case componentsCreationFailed(URL)
+    
+    /// Failed to create the final URL from URLComponents
     case finalURLCreationFailed(URLComponents)
+    
+    /// Failed to encode the request body
     case bodyEncodingFailed(AnySendableError)
     case tokenProviderMissingOrTokenNil
     

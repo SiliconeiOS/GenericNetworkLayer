@@ -7,11 +7,32 @@
 import Foundation
 import os.log
 
+/// A protocol for logging network requests and responses.
+///
+/// Implementations of this protocol can provide custom logging behavior
+/// for debugging and monitoring network activity. The network layer will
+/// call these methods at appropriate times during request execution.
 public protocol NetworkLoggerProtocol: Sendable {
+    /// Logs an outgoing network request.
+    ///
+    /// - Parameter request: The URLRequest that is about to be sent
     func log(request: URLRequest)
+    
+    /// Logs the response to a network request.
+    ///
+    /// - Parameters:
+    ///   - response: The URLResponse received (nil if request failed)
+    ///   - data: The response data received (nil if no data)
+    ///   - error: Any error that occurred during the request (nil if successful)
+    ///   - request: The original URLRequest for context
     func log(response: URLResponse?, data: Data?, error: Error?, for request: URLRequest)
 }
 
+/// Default implementation of NetworkLoggerProtocol using os.log.
+///
+/// This logger provides comprehensive logging of network requests and responses,
+/// including request details, response status, headers, and cURL command generation
+/// for easy debugging. Logging is automatically disabled in release builds and tests.
 public final class DefaultNetworkLogger: NetworkLoggerProtocol {
     
     private let logger = Logger(subsystem: "com.net.GenericNetworkLayer", category: "Networking")

@@ -6,7 +6,7 @@
 
 import Foundation
 
-public final class RetryCancellable: Cancellable, @unchecked Sendable {
+final class RetryCancellable: Cancellable, @unchecked Sendable {
     
     private let queue = DispatchQueue(label: "com.net.GenericNetworkLayer.RetryCancellable.syncQueue")
     

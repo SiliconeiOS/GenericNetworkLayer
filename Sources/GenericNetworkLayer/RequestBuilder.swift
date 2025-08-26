@@ -6,7 +6,20 @@
 
 import Foundation
 
+/// A protocol for building URLRequests from API request objects.
+///
+/// Implementations of this protocol handle the conversion from high-level
+/// API request objects to low-level URLRequest objects that can be executed
+/// by the network layer.
 public protocol RequestBuilderProtocol: Sendable {
+    /// Builds a URLRequest from an API request object.
+    ///
+    /// - Parameters:
+    ///   - apiRequest: The API request object containing request details
+    ///   - baseURL: The base URL to prepend to the request endpoint
+    ///   - tokenProvider: Optional token provider for authentication
+    /// - Returns: A configured URLRequest ready for execution
+    /// - Throws: `RequestBuilderError` if the request cannot be built
     func buildRequest<R: APIRequestProtocol>(
         from apiRequest: R,
         baseURL: String,
@@ -14,8 +27,16 @@ public protocol RequestBuilderProtocol: Sendable {
     ) throws -> URLRequest
 }
 
+/// Default implementation of RequestBuilderProtocol.
+///
+/// This builder constructs URLRequests by:
+/// - Combining base URL with request endpoint
+/// - Adding query parameters and headers
+/// - Handling request body encoding
+/// - Adding authentication headers when needed
 public final class RequestBuilder: RequestBuilderProtocol {
     
+    /// Creates a new RequestBuilder instance.
     public init() {}
     
     public func buildRequest<R>(

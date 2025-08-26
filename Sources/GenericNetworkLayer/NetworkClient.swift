@@ -6,6 +6,11 @@
 
 import Foundation
 
+/// Basic network client implementation using URLSession.
+///
+/// This class provides the fundamental network execution capabilities,
+/// handling URLSession operations and basic response validation.
+/// It supports optional logging and basic error handling.
 public final class NetworkClient: NetworkClientProtocol {
     
     //MARK: - Dependencies
@@ -15,6 +20,11 @@ public final class NetworkClient: NetworkClientProtocol {
     
     //MARK: - Init
     
+    /// Creates a NetworkClient with the specified URLSession and optional logger.
+    ///
+    /// - Parameters:
+    ///   - session: The URLSession to use for network requests
+    ///   - logger: Optional logger for debugging network activity
     public init(
         session: URLSession,
         logger: NetworkLoggerProtocol? = nil
@@ -79,6 +89,8 @@ public final class NetworkClient: NetworkClientProtocol {
             throw wrappedError
         }
     }
+    
+    //MARK: - Private Section
     
     private func validate(_ data: Data?, _ response: URLResponse?) -> Result<Data, NetworkError> {
         

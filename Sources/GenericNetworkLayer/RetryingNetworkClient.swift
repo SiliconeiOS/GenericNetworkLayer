@@ -6,9 +6,23 @@
 
 import Foundation
 
+/// A network client decorator that adds automatic retry functionality.
+///
+/// This client wraps another NetworkClientProtocol implementation and adds
+/// intelligent retry logic with configurable policies. It handles both
+/// callback-based and async/await execution patterns.
+///
+/// ## Features
+/// - Exponential backoff between retry attempts
+/// - Configurable retry conditions (which errors should trigger retries)
+/// - Proper cancellation handling during retry sequences
+/// - Thread-safe operation tracking
 public final class RetryingNetworkClient: NetworkClientProtocol {
     private let client: NetworkClientProtocol
     
+    /// Creates a RetryingNetworkClient that decorates another network client.
+    ///
+    /// - Parameter client: The underlying network client to wrap with retry logic
     public init(client: NetworkClientProtocol) {
         self.client = client
     }
@@ -96,7 +110,8 @@ public final class RetryingNetworkClient: NetworkClientProtocol {
                         attempt: attempt + 1,
                         currentDelay: currentDelay * policy.backoffFactor,
                         cancellableToken: cancellableToken,
-                        completion: completion)
+                        completion: completion
+                    )
                 }
             case .failure:
                 completion(result)
