@@ -19,7 +19,7 @@ A lightweight, modern, and flexible networking layer for Swift built on top of U
 
 ## Requirements
 
-- iOS 14.0+ / macOS 12.0+
+- iOS 15.0+ / macOS 12.0+
 - Swift 6.0+
 - Xcode 16.0+
 
@@ -262,39 +262,6 @@ do {
         print("Unexpected error: \(unexpectedError)")
     }
 }
-```
-
-## Testing
-
-GenericNetworkLayer is designed with testability in mind:
-
-```swift
-// Create a mock network client for testing
-class MockNetworkClient: NetworkClientProtocol {
-    var result: Result<Data, NetworkError>!
-    
-    func execute(
-        with request: URLRequest,
-        retryPolicy: RetryPolicy?,
-        completion: @escaping @Sendable (Result<Data, NetworkError>) -> Void
-    ) -> Cancellable? {
-        completion(result)
-        return nil
-    }
-    
-    func execute(with request: URLRequest, retryPolicy: RetryPolicy?) async throws -> Data {
-        return try result.get()
-    }
-}
-
-// Use in tests
-let mockClient = MockNetworkClient()
-let apiClient = APIClient(
-    baseURL: "https://test.com",
-    networkClient: mockClient,
-    requestBuilder: RequestBuilder(),
-    responseParser: ResponseParser()
-)
 ```
 
 ## Architecture
