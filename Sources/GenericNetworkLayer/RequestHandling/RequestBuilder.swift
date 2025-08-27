@@ -49,7 +49,10 @@ public final class RequestBuilder: RequestBuilderProtocol {
             throw RequestBuilderError.invalidBaseURL(baseURL)
         }
         
-        let fullURL = base.appendingPathComponent(apiRequest.endpoint)
+        let endpointPath = apiRequest.endpoint
+        let sanitizedEndpoint = endpointPath.starts(with: "/") ? String(endpointPath.dropFirst()) : endpointPath
+        
+        let fullURL = base.appendingPathComponent(sanitizedEndpoint)
         
         guard var components = URLComponents(url: fullURL, resolvingAgainstBaseURL: true) else {
             throw RequestBuilderError.componentsCreationFailed(fullURL)

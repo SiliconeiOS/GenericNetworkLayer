@@ -22,6 +22,8 @@ public enum RequestBuilderError: LocalizedError, Sendable  {
     
     /// Failed to encode the request body
     case bodyEncodingFailed(AnySendableError)
+    
+    /// Failed to find token
     case tokenProviderMissingOrTokenNil
     
     public var errorDescription: String? {
