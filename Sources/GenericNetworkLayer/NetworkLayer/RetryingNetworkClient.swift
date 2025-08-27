@@ -104,6 +104,9 @@ public final class RetryingNetworkClient: NetworkClientProtocol {
                 guard !cancellableToken.isOperationCancelled else { return }
                 
                 DispatchQueue.global().asyncAfter(deadline: .now() + currentDelay) {
+                    
+                    guard !cancellableToken.isOperationCancelled else { return }
+                    
                     self.performRequest(
                         with: request,
                         policy: policy,
