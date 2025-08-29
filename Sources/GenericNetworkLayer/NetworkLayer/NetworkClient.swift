@@ -45,18 +45,26 @@ public final class NetworkClient: NetworkClientProtocol {
         let task = session.dataTask(with: request) { [weak self] data, response, error in
             guard let self else { return }
             
-            logger?.log(response: response, data: data, error: error, for: request)
-            
-            if let error {
-                guard (error as NSError).code != NSURLErrorCancelled else {
+            if let sessionError = error {
+                guard (sessionError as NSError).code != NSURLErrorCancelled else {
                     return
                 }
                 
-                completion(.failure(.requestFailed(AnySendableError(error))))
+                let networkError = NetworkError.requestFailed(AnySendableError(sessionError))
+                logger?.log(response: response, data: data, error: networkError, for: request)
+                completion(.failure(networkError))
                 return
             }
             
-            completion(validate(data, response))
+            let validateResult = validate(data, response)
+            
+            var loggedError: NetworkError?
+            if case .failure(let validationError) = validateResult {
+                loggedError = validationError
+            }
+            logger?.log(response: response, data: data, error: loggedError, for: request)
+            
+            completion(validateResult)
         }
         
         task.resume()
@@ -84,6 +92,11 @@ public final class NetworkClient: NetworkClientProtocol {
             responseError = error
             throw error
         } catch {
+            guard (error as NSError).code != NSURLErrorCancelled else {
+                let cancellationError = CancellationError()
+                responseError = cancellationError
+                throw cancellationError
+            }
             let wrappedError = NetworkError.requestFailed(AnySendableError(error))
             responseError = wrappedError
             throw wrappedError

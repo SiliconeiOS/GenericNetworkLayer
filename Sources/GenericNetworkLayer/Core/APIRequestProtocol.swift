@@ -62,6 +62,9 @@ public protocol APIRequestProtocol: Sendable {
     /// Optional retry policy for this specific request.
     /// Overrides the client's default retry policy.
     var retryPolicy: RetryPolicy? { get }
+    
+    /// Authentication type for this request.
+    /// Defaults to `.none`. Use `.bearerToken` to add Authorization header.
     var authType: AuthorizationType { get }
 }
 

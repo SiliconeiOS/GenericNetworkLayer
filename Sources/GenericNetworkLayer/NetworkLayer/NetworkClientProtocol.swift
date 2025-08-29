@@ -46,6 +46,7 @@ public extension NetworkClientProtocol {
         execute(with: request, retryPolicy: nil, completion: completion)
     }
     
+    @discardableResult
     func execute(with request: URLRequest) async throws -> Data {
         try await execute(with: request, retryPolicy: nil)
     }

@@ -11,9 +11,6 @@ import Foundation
 /// These errors represent various failure modes at the network layer,
 /// including connectivity issues, invalid responses, and HTTP status code errors.
 public enum NetworkError: LocalizedError, Sendable {
-    /// The provided URL string is malformed or invalid
-    case invalidURL
-    
     /// The server response is not a valid HTTP response
     case invalidResponse
     
@@ -31,8 +28,6 @@ public enum NetworkError: LocalizedError, Sendable {
     
     public var errorDescription: String? {
         switch self {
-        case .invalidURL:
-            return "The provided URL is invalid."
         case .requestFailed(let error):
             return "Request failed: \(error.localizedDescription)"
         case .invalidResponse:

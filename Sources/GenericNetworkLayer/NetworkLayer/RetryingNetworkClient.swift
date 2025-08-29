@@ -116,6 +116,13 @@ public final class RetryingNetworkClient: NetworkClientProtocol {
                         completion: completion
                     )
                 }
+            case .failure(let error) where policy.shouldRetry(error) && attempt >= policy.maxRetries:
+                let totalAttempts = policy.maxRetries + 1
+                let allRetriesFailedError = NetworkError.allRetriesFailed(
+                    lastError: error,
+                    totalAttempts: totalAttempts
+                )
+                completion(.failure(allRetriesFailedError))
             case .failure:
                 completion(result)
             }
