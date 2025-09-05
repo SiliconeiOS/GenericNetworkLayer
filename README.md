@@ -12,7 +12,7 @@ A lightweight, modern, and flexible networking layer for Swift built on top of U
 - 🎯 **Type Safety**: Define requests and responses using Swift types with compile-time guarantees
 - ⚡ **Async/Await Support**: Modern Swift concurrency patterns with backward compatibility
 - 🔄 **Automatic Retry**: Configurable retry policies with exponential backoff
-- 🔐 **Authentication**: Built-in token-based authentication handling
+- 🔐 **Authentication**: Built-in authentication support (Bearer tokens, API keys in query parameters)
 - 📝 **Logging**: Comprehensive request/response logging with cURL generation
 - 🛡️ **Error Handling**: Detailed error types with localized descriptions
 - 🧪 **Testability**: Protocol-based design for easy mocking and testing
@@ -157,6 +157,39 @@ do {
 } catch {
     print("Error: \(error)")
 }
+
+// Example with API key authentication
+class WeatherService {
+    private let client: APIClient
+    
+    init(apiKey: String) {
+        // TokenProvider that returns the API key
+        let tokenProvider = SimpleTokenProvider(token: apiKey)
+        
+        self.client = APIClient(
+            baseURL: "https://api.openweathermap.org/data/2.5",
+            tokenProvider: tokenProvider
+        )
+    }
+    
+    func getWeather(for city: String) async throws -> WeatherData {
+        let request = WeatherRequest(city: city)
+        return try await client.execute(with: request)
+    }
+}
+
+// Simple token provider implementation
+class SimpleTokenProvider: TokenProviderProtocol {
+    private let token: String
+    
+    init(token: String) {
+        self.token = token
+    }
+    
+    func getAccessToken() -> String? {
+        return token
+    }
+}
 ```
 
 #### Using Completion Handlers
@@ -230,12 +263,55 @@ struct CriticalRequest: APIRequestProtocol {
 
 #### Authentication
 
+GenericNetworkLayer supports multiple authentication types:
+
+##### Bearer Token Authentication
+
 ```swift
 struct AuthenticatedRequest: APIRequestProtocol {
     typealias Response = SecureData
     
     var endpoint: String { "/secure-data" }
     var authType: AuthorizationType { .bearerToken }
+}
+```
+
+##### API Key in Query Parameters
+
+For APIs that require API keys as query parameters (like OpenWeatherMap, many REST APIs):
+
+```swift
+// Weather API with 'appid' parameter
+struct WeatherRequest: APIRequestProtocol {
+    typealias Response = WeatherData
+    
+    let city: String
+    
+    var endpoint: String { "/weather" }
+    var authType: AuthorizationType { .queryApiKey(keyName: "appid") }
+    
+    var parameters: [URLQueryItem]? {
+        [URLQueryItem(name: "q", value: city)]
+    }
+}
+
+// Custom API with 'api_key' parameter
+struct CustomAPIRequest: APIRequestProtocol {
+    typealias Response = APIResponse
+    
+    var endpoint: String { "/data" }
+    var authType: AuthorizationType { .queryApiKey(keyName: "api_key") }
+}
+```
+
+##### No Authentication
+
+```swift
+struct PublicRequest: APIRequestProtocol {
+    typealias Response = PublicData
+    
+    var endpoint: String { "/public-data" }
+    var authType: AuthorizationType { .none } // Default value
 }
 ```
 

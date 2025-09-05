@@ -58,7 +58,23 @@ public final class RequestBuilder: RequestBuilderProtocol {
             throw RequestBuilderError.componentsCreationFailed(fullURL)
         }
         
-        components.queryItems = apiRequest.parameters
+        var queryItems = apiRequest.parameters ?? []
+        var headers = apiRequest.headers ?? [:]
+        
+        switch apiRequest.authType {
+        case .none:
+            break
+        case .bearerToken:
+            let token = try retrieveToken(from: tokenProvider)
+            headers[.auth] = "\(String.bearer) \(token)"
+        case .queryApiKey(let keyName):
+            let token = try retrieveToken(from: tokenProvider)
+            queryItems.append(URLQueryItem(name: keyName, value: token))
+        }
+        
+        if !queryItems.isEmpty {
+            components.queryItems = queryItems
+        }
         
         guard let finalURL = components.url else {
             throw RequestBuilderError.finalURLCreationFailed(components)
@@ -66,6 +82,7 @@ public final class RequestBuilder: RequestBuilderProtocol {
         
         var urlRequest = URLRequest(url: finalURL)
         urlRequest.httpMethod = apiRequest.method.rawValue
+        urlRequest.allHTTPHeaderFields = headers
         
         do {
             urlRequest.httpBody = try apiRequest.body
@@ -73,23 +90,22 @@ public final class RequestBuilder: RequestBuilderProtocol {
             throw RequestBuilderError.bodyEncodingFailed(AnySendableError(error))
         }
         
-        var allHeaders = apiRequest.headers ?? [:]
-        
-        switch apiRequest.authType {
-        case .none:
-            break
-        case .bearerToken:
-            guard let tokenProvider, let token = tokenProvider.getAccessToken() else {
-                throw RequestBuilderError.tokenProviderMissingOrTokenNil
-            }
-            allHeaders[.auth] = "\(String.bearer) \(token)"
-        }
-        
-        urlRequest.allHTTPHeaderFields = allHeaders
-        
         return urlRequest
     }
 }
+
+//MARK: - Private RequestBuilder Helpers
+
+private extension RequestBuilder {
+    func retrieveToken(from tokenProvider: TokenProviderProtocol?) throws -> String {
+        guard let provider = tokenProvider, let token = provider.getAccessToken() else {
+            throw RequestBuilderError.tokenProviderMissingOrTokenNil
+        }
+        return token
+    }
+}
+
+//MARK: - Strings Constants
 
 private extension String {
     static var auth: String { "Authorization" }

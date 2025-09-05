@@ -96,6 +96,101 @@ struct RequestBuilderTests {
         #expect(urlRequest.value(forHTTPHeaderField: "Authorization") == "Bearer secret-token")
     }
     
+    // MARK: - Query API Key Authentication Tests
+    
+    @Test("Correctly builds request with API key in query parameters")
+    func testBuildQueryApiKeyRequest() throws {
+        // Given
+        let tokenProvider = TokenProviderMock(token: "my-api-key-123")
+        let apiKeyRequest = QueryApiKeyRequest()
+        
+        // When
+        let urlRequest = try requestBuilder.buildRequest(from: apiKeyRequest, baseURL: baseURL, tokenProvider: tokenProvider)
+        
+        // Then
+        let urlComponents = try #require(URLComponents(url: urlRequest.url!, resolvingAgainstBaseURL: false))
+        let queryItems = try #require(urlComponents.queryItems)
+        
+        #expect(queryItems.contains(URLQueryItem(name: "appid", value: "my-api-key-123")))
+        #expect(urlRequest.value(forHTTPHeaderField: "Authorization") == nil)
+        #expect(urlComponents.path == "/weather")
+    }
+    
+    @Test("Correctly builds request with custom API key name")
+    func testBuildQueryApiKeyWithCustomKeyName() throws {
+        // Given
+        let tokenProvider = TokenProviderMock(token: "custom-key-value")
+        let customKeyRequest = QueryApiKeyWithCustomKeyNameRequest()
+        
+        // When
+        let urlRequest = try requestBuilder.buildRequest(from: customKeyRequest, baseURL: baseURL, tokenProvider: tokenProvider)
+        
+        // Then
+        let urlComponents = try #require(URLComponents(url: urlRequest.url!, resolvingAgainstBaseURL: false))
+        let queryItems = try #require(urlComponents.queryItems)
+        
+        #expect(queryItems.contains(URLQueryItem(name: "api_key", value: "custom-key-value")))
+        #expect(urlRequest.value(forHTTPHeaderField: "Authorization") == nil)
+    }
+    
+    @Test("Correctly builds request with API key and existing query parameters")
+    func testBuildQueryApiKeyWithExistingParams() throws {
+        // Given
+        let tokenProvider = TokenProviderMock(token: "weather-api-key")
+        let request = QueryApiKeyWithExistingParamsRequest(city: "Moscow", units: "metric")
+        
+        // When
+        let urlRequest = try requestBuilder.buildRequest(from: request, baseURL: baseURL, tokenProvider: tokenProvider)
+        
+        // Then
+        let urlComponents = try #require(URLComponents(url: urlRequest.url!, resolvingAgainstBaseURL: false))
+        let queryItems = try #require(urlComponents.queryItems)
+        
+        #expect(queryItems.contains(URLQueryItem(name: "appid", value: "weather-api-key")))
+        #expect(queryItems.contains(URLQueryItem(name: "q", value: "Moscow")))
+        #expect(queryItems.contains(URLQueryItem(name: "units", value: "metric")))
+        #expect(queryItems.count == 3)
+    }
+    
+    @Test("Throws tokenProviderMissingOrTokenNil when token provider is nil for query API key request")
+    func testQueryApiKeyMissingTokenProviderError() throws {
+        // Given
+        let request = QueryApiKeyRequest()
+        
+        do {
+            // When
+            _ = try requestBuilder.buildRequest(from: request, baseURL: baseURL)
+            #expect(Bool(false), "Should throw an error")
+            
+            // Then
+        } catch let error as RequestBuilderError {
+            guard case .tokenProviderMissingOrTokenNil = error else {
+                #expect(Bool(false), "Should throw tokenProviderMissingOrTokenNil error")
+                return
+            }
+        }
+    }
+    
+    @Test("Throws tokenProviderMissingOrTokenNil when token provider returns nil for query API key request")
+    func testQueryApiKeyNilTokenError() throws {
+        // Given
+        let request = QueryApiKeyRequest()
+        let nilTokenProvider = TokenProviderMock(token: nil)
+        
+        do {
+            // When
+            _ = try requestBuilder.buildRequest(from: request, baseURL: baseURL, tokenProvider: nilTokenProvider)
+            #expect(Bool(false), "Should throw an error")
+            
+            // Then
+        } catch let error as RequestBuilderError {
+            guard case .tokenProviderMissingOrTokenNil = error else {
+                #expect(Bool(false), "Should throw tokenProviderMissingOrTokenNil error")
+                return
+            }
+        }
+    }
+    
     // MARK: - Query Parameters Tests
     
     @Test("Correctly builds request with query parameters")

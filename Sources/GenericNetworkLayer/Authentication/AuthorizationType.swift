@@ -18,4 +18,8 @@ public enum AuthorizationType: Sendable {
     
     /// Use Bearer token authentication (Authorization: Bearer <token>)
     case bearerToken
+    
+    /// Use an API key passed as a query parameter in the URL.
+    /// - Parameter keyName: The name of the query parameter (e.g., "appid", "api_key").
+    case queryApiKey(keyName: String)
 }

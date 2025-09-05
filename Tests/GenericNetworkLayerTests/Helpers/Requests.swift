@@ -49,6 +49,34 @@ struct AuthenticatedRequest: APIRequestProtocol {
     var authType: AuthorizationType { .bearerToken }
 }
 
+struct QueryApiKeyRequest: APIRequestProtocol {
+    typealias Response = TestUser
+    var endpoint: String { "/weather" }
+    var authType: AuthorizationType { .queryApiKey(keyName: "appid") }
+}
+
+struct QueryApiKeyWithCustomKeyNameRequest: APIRequestProtocol {
+    typealias Response = TestUser
+    var endpoint: String { "/data" }
+    var authType: AuthorizationType { .queryApiKey(keyName: "api_key") }
+}
+
+struct QueryApiKeyWithExistingParamsRequest: APIRequestProtocol {
+    typealias Response = TestUser
+    
+    let city: String
+    let units: String
+    
+    var endpoint: String { "/weather" }
+    var authType: AuthorizationType { .queryApiKey(keyName: "appid") }
+    var parameters: [URLQueryItem]? {
+        [
+            URLQueryItem(name: "q", value: city),
+            URLQueryItem(name: "units", value: units)
+        ]
+    }
+}
+
 // MARK: - Query Parameters
 
 struct GetUserWithParamsRequest: APIRequestProtocol {
